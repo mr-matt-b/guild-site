@@ -8,22 +8,20 @@ import {
   updateCharacterEquippedItemLevel,
 } from "../services/characterService";
 import { Character } from "../models/Character";
+import { IncomingMessage, ClientRequest } from "http";
 
 dotenv.config();
 
-interface ProxyOptions {
+export interface ProxyOptions {
   target: string;
-  changeOrigin?: boolean;
-  secure?: boolean;
+  changeOrigin: boolean;
+  secure: boolean;
+  requiresAuth?: boolean;
   pathRewrite?: {
     [key: string]: string;
   };
-  requiresAuth?: boolean;
-  onProxyRes?: (
-    proxyRes: http.IncomingMessage,
-    req: Request,
-    res: Response
-  ) => void;
+  onProxyRes?: (proxyRes: IncomingMessage, req: Request, res: Response) => void;
+  onProxyReq?: (proxyReq: ClientRequest, req: Request, res: Response) => void;
 }
 
 let accessToken: string | null = null;
@@ -72,6 +70,7 @@ export function createProxyMiddleware(
     pathRewrite,
     requiresAuth = false,
     onProxyRes,
+    onProxyReq,
   } = options;
   const protocol = target.startsWith("https") ? https : http;
 
