@@ -14,36 +14,36 @@ const port = process.env.PORT || 3001;
 // Security middleware
 app.use(
   helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        imgSrc: [
-          "'self'",
-          "https://wow.zamimg.com",
-          "https://render.worldofwarcraft.com",
-          "data:",
-          "blob:",
-        ],
-        scriptSrc: [
-          "'self'",
-          "https://wow.zamimg.com",
-          "'unsafe-inline'",
-          "'unsafe-eval'",
-        ],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        connectSrc: [
-          "'self'",
-          "https://wow.zamimg.com",
-          "https://render.worldofwarcraft.com",
-          "https://us.api.blizzard.com",
-        ],
-        mediaSrc: [
-          "'self'",
-          "https://wow.zamimg.com",
-          "https://render.worldofwarcraft.com",
-        ],
-      },
-    },
+    // contentSecurityPolicy: {
+    //   directives: {
+    //     defaultSrc: ["'self'"],
+    //     imgSrc: [
+    //       "'self'",
+    //       "https://wow.zamimg.com",
+    //       "https://render.worldofwarcraft.com",
+    //       "data:",
+    //       "blob:",
+    //     ],
+    //     scriptSrc: [
+    //       "'self'",
+    //       "https://wow.zamimg.com",
+    //       "'unsafe-inline'",
+    //       "'unsafe-eval'",
+    //     ],
+    //     styleSrc: ["'self'", "'unsafe-inline'"],
+    //     connectSrc: [
+    //       "'self'",
+    //       "https://wow.zamimg.com",
+    //       "https://render.worldofwarcraft.com",
+    //       "https://us.api.blizzard.com",
+    //     ],
+    //     mediaSrc: [
+    //       "'self'",
+    //       "https://wow.zamimg.com",
+    //       "https://render.worldofwarcraft.com",
+    //     ],
+    //   },
+    // },
   })
 );
 
