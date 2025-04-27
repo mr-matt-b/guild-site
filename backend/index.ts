@@ -5,6 +5,8 @@ import rateLimit from "express-rate-limit";
 import { createProxyMiddleware } from "./src/middleware/proxy";
 import guildRouter from "./src/routes/guild";
 import { connectDB } from "./src/config/mongodb";
+import { IncomingMessage } from "http";
+import { Request, Response } from "express";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -22,7 +24,12 @@ app.use(
           "data:",
           "blob:",
         ],
-        scriptSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "https://wow.zamimg.com",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+        ],
         styleSrc: ["'self'", "'unsafe-inline'"],
         connectSrc: [
           "'self'",
@@ -93,6 +100,13 @@ app.use(
     target: "https://wow.zamimg.com",
     changeOrigin: true,
     secure: true,
+    onProxyRes: (proxyRes: IncomingMessage, req: Request, res: Response) => {
+      // Add CORS headers for the viewer.min.js file
+      if (req.url?.includes("viewer.min.js")) {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "GET");
+      }
+    },
   })
 );
 

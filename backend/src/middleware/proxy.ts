@@ -19,6 +19,11 @@ interface ProxyOptions {
     [key: string]: string;
   };
   requiresAuth?: boolean;
+  onProxyRes?: (
+    proxyRes: http.IncomingMessage,
+    req: Request,
+    res: Response
+  ) => void;
 }
 
 let accessToken: string | null = null;
@@ -66,6 +71,7 @@ export function createProxyMiddleware(
     secure = true,
     pathRewrite,
     requiresAuth = false,
+    onProxyRes,
   } = options;
   const protocol = target.startsWith("https") ? https : http;
 
@@ -234,6 +240,11 @@ export function createProxyMiddleware(
                     error
                   );
                 });
+              }
+
+              // Call onProxyRes callback if provided
+              if (onProxyRes) {
+                onProxyRes(proxyRes, req, res);
               }
             } catch (error) {
               console.error(
