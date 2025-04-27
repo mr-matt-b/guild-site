@@ -104,6 +104,32 @@ app.use(
     target: "https://wow.zamimg.com",
     changeOrigin: true,
     secure: true,
+    onProxyReq: (proxyReq, req, res) => {
+      // Set the host header to match the target
+      proxyReq.setHeader("host", "wow.zamimg.com");
+      // Add referer header to mimic browser behavior
+      proxyReq.setHeader("referer", "https://wow.zamimg.com/");
+      // Add accept header for JSON requests
+      proxyReq.setHeader("accept", "application/json, text/plain, */*");
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      // Ensure CORS headers are preserved
+      res.setHeader(
+        "Access-Control-Allow-Origin",
+        process.env.FRONTEND_URL || "http://localhost:3000"
+      );
+      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization, Accept"
+      );
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+
+      // For model viewer requests, ensure content-type is set correctly
+      if (req.url?.includes("modelviewer")) {
+        res.setHeader("content-type", "application/json");
+      }
+    },
   })
 );
 
