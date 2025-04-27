@@ -2,26 +2,22 @@ FROM node:18-alpine
 
 WORKDIR /usr/src/app
 
-COPY package.json ./
-COPY pnpm-lock.yaml ./
+# Install specific version of pnpm
+RUN npm install -g pnpm@8.15.4
 
-# Install pnpm
-RUN npm install -g pnpm
+# Copy only package files first
+COPY package.json pnpm-lock.yaml ./
 
-# Install all dependencies (including dev)
-RUN pnpm install
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
-# Explicitly install typescript again (workaround for pnpm/Docker bug)
-RUN pnpm add -D typescript
-
+# Copy the rest of the application
 COPY . .
 
-RUN ls -l ./node_modules
-RUN ls -l ./node_modules/.bin
-RUN ls -l ./node_modules/typescript/bin || true
-
+# Build the application
 RUN pnpm exec tsc
 
+# Remove dev dependencies
 RUN pnpm prune --prod
 
 EXPOSE 3001

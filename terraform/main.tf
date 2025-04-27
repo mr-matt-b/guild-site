@@ -15,7 +15,7 @@ resource "aws_iam_instance_profile" "ecs_ec2" {
 
 # ECR Repository
 resource "aws_ecr_repository" "guild_site" {
-  name = "guild-site"
+  name = "guild-site-backend"
 }
 
 # ECS Cluster

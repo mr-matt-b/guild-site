@@ -7,8 +7,12 @@ interface Character {
   equippedItemLevel: number;
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+
 const fetchTopCharacters = async (): Promise<Character[]> => {
-  const response = await fetch("/api/guild/top-characters/achievement-points");
+  const response = await fetch(
+    `${API_BASE_URL}/guild/top-characters/achievement-points`
+  );
   if (!response.ok) {
     throw new Error("Failed to fetch top characters");
   }
@@ -16,7 +20,9 @@ const fetchTopCharacters = async (): Promise<Character[]> => {
 };
 
 const fetchTopCharactersByItemLevel = async (): Promise<Character[]> => {
-  const response = await fetch("/api/guild/top-characters/equipped-item-level");
+  const response = await fetch(
+    `${API_BASE_URL}/guild/top-characters/equipped-item-level`
+  );
   if (!response.ok) {
     throw new Error("Failed to fetch top characters by item level");
   }

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-const API_BASE_URL = "/api/wow";
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || "/api"}/wow`;
 
 interface CharacterAppearance {
   race: number;
