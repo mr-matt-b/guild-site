@@ -90,11 +90,22 @@ app.use(
     changeOrigin: true,
     secure: true,
     onProxyRes: (proxyRes: IncomingMessage, req: Request, res: Response) => {
-      // Add CORS headers for the viewer.min.js file
-      if (req.url?.includes("viewer.min.js")) {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        res.setHeader("Access-Control-Allow-Methods", "GET");
-      }
+      // Add CORS headers for all Zamimg requests
+      res.setHeader(
+        "Access-Control-Allow-Origin",
+        process.env.NODE_ENV === "production"
+          ? process.env.FRONTEND_URL || "https://guild-site-iota.vercel.app"
+          : "http://localhost:3000"
+      );
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, OPTIONS"
+      );
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization"
+      );
+      res.setHeader("Access-Control-Allow-Credentials", "true");
     },
   })
 );
