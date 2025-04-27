@@ -17,9 +17,11 @@ export interface ProxyOptions {
   changeOrigin: boolean;
   secure: boolean;
   requiresAuth?: boolean;
-  pathRewrite?: {
-    [key: string]: string;
-  };
+  pathRewrite?:
+    | {
+        [key: string]: string;
+      }
+    | ((path: string) => string);
   onProxyRes?: (proxyRes: IncomingMessage, req: Request, res: Response) => void;
   onProxyReq?: (proxyReq: ClientRequest, req: Request, res: Response) => void;
 }
@@ -87,9 +89,13 @@ export function createProxyMiddleware(
         // Apply path rewriting if specified
         let path = req.url;
         if (pathRewrite) {
-          Object.entries(pathRewrite).forEach(([pattern, replacement]) => {
-            path = path.replace(new RegExp(pattern), replacement);
-          });
+          if (typeof pathRewrite === "function") {
+            path = pathRewrite(path);
+          } else {
+            Object.entries(pathRewrite).forEach(([pattern, replacement]) => {
+              path = path.replace(new RegExp(pattern), replacement);
+            });
+          }
         }
 
         const targetUrl = new URL(path, target);

@@ -7,7 +7,6 @@ import guildRouter from "./src/routes/guild";
 import { connectDB } from "./src/config/mongodb";
 import { IncomingMessage } from "http";
 import { Request, Response } from "express";
-import { ClientRequest } from "http";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -72,6 +71,21 @@ connectDB().catch((error) => {
   process.exit(1);
 });
 
+// CORS configuration
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? process.env.FRONTEND_URL || "https://guild-site.onrender.com"
+        : "http://localhost:3000",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Content-Range", "X-Content-Range"],
+    maxAge: 600, // Cache preflight requests for 10 minutes
+  })
+);
+
 app.use(express.json());
 
 // Apply proxy rate limiting
@@ -84,54 +98,14 @@ app.use((req, res, next) => {
 });
 
 // Proxy middleware for Zamimg API
-const zamimgProxy = createProxyMiddleware({
-  target: "https://wow.zamimg.com",
-  changeOrigin: true,
-  secure: true,
-  pathRewrite: {
-    "^/api/zamimg": "",
-  },
-  onProxyReq: (proxyReq, req, res) => {
-    // Add CORS headers to all requests
-    res.setHeader(
-      "Access-Control-Allow-Origin",
-      process.env.FRONTEND_URL || "http://localhost:3000"
-    );
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization"
-    );
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-  },
-  onProxyRes: (proxyRes, req, res) => {
-    // Ensure CORS headers are preserved in the response
-    res.setHeader(
-      "Access-Control-Allow-Origin",
-      process.env.FRONTEND_URL || "http://localhost:3000"
-    );
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization"
-    );
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-  },
-});
-
-// Handle preflight requests for Zamimg
-app.options("/api/zamimg/*", (req, res) => {
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    process.env.FRONTEND_URL || "http://localhost:3000"
-  );
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.status(200).end();
-});
-
-app.use("/api/zamimg", zamimgProxy);
+app.use(
+  "/api/zamimg",
+  createProxyMiddleware({
+    target: "https://wow.zamimg.com",
+    changeOrigin: true,
+    secure: true,
+  })
+);
 
 // Proxy middleware for WoW API
 app.use(
