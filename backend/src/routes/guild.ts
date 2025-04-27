@@ -6,7 +6,22 @@ import {
 
 const router = express.Router();
 
+// Add CORS headers to all guild routes
+router.use((req, res, next) => {
+  res.header(
+    "Access-Control-Allow-Origin",
+    process.env.NODE_ENV === "production"
+      ? process.env.FRONTEND_URL || "https://guild-site.onrender.com"
+      : "http://localhost:3000"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
 // Endpoint to get top characters by achievement points
+
 router.get("/top-characters/achievement-points", async (req, res) => {
   try {
     const limit = parseInt(req.query.limit as string) || 12;

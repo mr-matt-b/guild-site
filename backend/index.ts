@@ -71,17 +71,6 @@ connectDB().catch((error) => {
   process.exit(1);
 });
 
-// CORS configuration
-app.use(
-  cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? process.env.FRONTEND_URL
-        : "http://localhost:3000",
-    credentials: true,
-  })
-);
-
 app.use(express.json());
 
 // Apply proxy rate limiting
