@@ -63,10 +63,10 @@ app.use(
 app.use(express.json());
 
 // Remove the Zamimg proxy middleware and replace with custom route handler
-app.get("/api/zamimg/*", async (req, res) => {
+app.get("/api/zamimg/:path(*)", async (req, res) => {
   try {
-    const path = req.path.replace("/api/zamimg", "");
-    const url = `https://wow.zamimg.com${path}`;
+    const path = req.params.path;
+    const url = `https://wow.zamimg.com/${path}`;
 
     const response = await fetch(url);
     const data = await response.text();
