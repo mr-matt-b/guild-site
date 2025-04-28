@@ -137,15 +137,10 @@ export function createProxyMiddleware(
         const proxyReq = protocol.request(targetUrl, {
           method: req.method,
           headers: {
-            // Only forward essential headers
-            accept: "application/json",
-            "accept-encoding": "identity",
-            "user-agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-            // Add host header
-            host: targetUrl.host,
-            // Add referer header to make it look like a direct request
-            referer: "https://wow.zamimg.com/",
+            ...req.headers,
+            "accept-encoding": "identity", // Request uncompressed responses
+            accept: "application/json", // Explicitly request JSON
+            "Battlenet-Namespace": namespace, // Use appropriate namespace
           },
           rejectUnauthorized: secure,
         });
