@@ -22,4 +22,4 @@ RUN pnpm prune --prod
 
 EXPOSE 3001
 
-CMD ["pnpm", "run", "start:prod"]
+CMD ["pnpm", "run", "start"]
