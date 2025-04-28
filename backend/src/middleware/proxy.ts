@@ -137,32 +137,10 @@ export function createProxyMiddleware(
         const proxyReq = protocol.request(targetUrl, {
           method: req.method,
           headers: {
-            ...(targetUrl.hostname === "wow.zamimg.com"
-              ? {
-                  accept: "*/*",
-                  "accept-encoding": "gzip, deflate, br",
-                  "accept-language": "en-US,en;q=0.9",
-                  "cache-control": "no-cache",
-                  cookie: "wowhead=1",
-                  origin: "https://wow.zamimg.com",
-                  pragma: "no-cache",
-                  referer: "https://wow.zamimg.com/",
-                  "sec-ch-ua":
-                    '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
-                  "sec-ch-ua-mobile": "?0",
-                  "sec-ch-ua-platform": '"Windows"',
-                  "sec-fetch-dest": "empty",
-                  "sec-fetch-mode": "cors",
-                  "sec-fetch-site": "same-origin",
-                  "user-agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
-                }
-              : {
-                  ...req.headers,
-                  "accept-encoding": "identity",
-                  accept: "application/json",
-                  "Battlenet-Namespace": namespace,
-                }),
+            ...req.headers,
+            "accept-encoding": "identity", // Request uncompressed responses
+            accept: "application/json", // Explicitly request JSON
+            "Battlenet-Namespace": namespace, // Use appropriate namespace
           },
           rejectUnauthorized: secure,
         });

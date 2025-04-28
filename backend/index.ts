@@ -5,9 +5,16 @@ import rateLimit from "express-rate-limit";
 import { createProxyMiddleware } from "./src/middleware/proxy";
 import guildRouter from "./src/routes/guild";
 import { connectDB } from "./src/config/mongodb";
+import path from "path";
 
 const app = express();
 const port = process.env.PORT || 3001;
+
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, "public")));
+
+// Also serve static files under /api prefix
+app.use("/api", express.static(path.join(__dirname, "public")));
 
 // Rate limiter configuration for API endpoints
 const apiLimiter = rateLimit({

@@ -15,6 +15,8 @@ const router = createBrowserRouter([
 
 const queryClient = new QueryClient();
 
+// Wait for the viewer to load before rendering the app
+
 createRoot(document.getElementById("root")!).render(
   //<StrictMode>
   <QueryClientProvider client={queryClient}>

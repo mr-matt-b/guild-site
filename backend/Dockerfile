@@ -17,8 +17,17 @@ COPY . .
 # Build the application
 RUN pnpm exec tsc
 
+# Create public directory in dist
+RUN mkdir -p dist/public
+
+# Copy public directory to dist
+COPY public dist/public/
+
 # Remove dev dependencies
 RUN pnpm prune --prod
+
+# Set working directory to dist
+WORKDIR /usr/src/app/dist
 
 EXPOSE 3001
 
