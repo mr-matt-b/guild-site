@@ -38,6 +38,7 @@ services:
     environment:
       - NODE_ENV=production
       - MONGO_URI=mongodb://admin:password@mongodb:27017/guild-site?authSource=admin
+      - FRONTEND_URL=http://localhost:3000
     depends_on:
       - mongodb
     networks:

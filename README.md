@@ -2,53 +2,57 @@
 
 A web application for managing guild information and character data.
 
-## Prerequisites
+## Docker Installation (Linux)
 
-- Docker
-- Docker Compose
-- A Blizzard API token (get one from https://develop.battle.net/)
+If you're new to Docker, you can install it with a single command:
+
+```bash
+# For Ubuntu/Debian
+sudo apt update && sudo apt install -y docker.io docker-compose
+
+# For Fedora
+sudo dnf install -y docker docker-compose
+
+# For CentOS/RHEL
+sudo yum install -y docker docker-compose
+```
+
+After installation, start Docker and enable it to run on boot:
+
+```bash
+sudo systemctl start docker
+sudo systemctl enable docker
+```
+
+Add your user to the docker group to run Docker commands without sudo:
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+You'll need to log out and back in for this to take effect.
 
 ## Quick Start
 
 1. Clone this repository
-2. Make the setup script executable and run it:
-
-```bash
-chmod +x setup.sh
-./setup.sh
-```
-
-This will:
-
-- Create necessary environment files
-- Build the Docker images
-- Start all services
-
-## Manual Setup
-
-If you prefer to set up manually:
-
-1. Clone this repository
-2. Copy `backend/.env.example` to `backend/.env`
-3. Update `backend/.env` with your Blizzard API token
-4. Run:
+2. Run:
 
 ```bash
 docker-compose up -d
 ```
+
+This will:
+
+- Build the Docker images
+- Start all services
+- Set up the MongoDB database with default credentials
+- Configure all necessary environment variables
 
 ## Accessing the Application
 
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001
 - Mongo Express: http://localhost:8081
-
-## Environment Variables
-
-The application uses the following environment variables:
-
-- `WOW_API_TOKEN`: Blizzard API token for fetching character data (required)
-- `MONGO_URI`: MongoDB connection string (configured in docker-compose.yml, override if needed)
 
 ## Stopping the Application
 
