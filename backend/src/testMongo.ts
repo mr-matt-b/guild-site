@@ -3,15 +3,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-if (!process.env.MONGO_URI) {
-  throw new Error("MONGO_URI environment variable is not defined");
-}
+const MONGODB_URI =
+  process.env.MONGO_URI ||
+  "mongodb://admin:password@localhost:27017/guild-site?authSource=admin";
 
-const MONGODB_URI = process.env.MONGO_URI;
-
-export const connectDB = async () => {
+async function testConnection() {
   try {
-    console.log("Attempting to connect to MongoDB at:", MONGODB_URI);
+    console.log("Testing connection to:", MONGODB_URI);
 
     // Add connection event listeners
     mongoose.connection.on("connecting", () => {
@@ -30,9 +28,21 @@ export const connectDB = async () => {
       console.log("MongoDB disconnected");
     });
 
+    // Try to connect
     await mongoose.connect(MONGODB_URI);
+
+    // Try a simple operation
+    const collections = await mongoose.connection.db
+      .listCollections()
+      .toArray();
+    console.log("Available collections:", collections);
+
+    // Close the connection
+    await mongoose.connection.close();
+    console.log("Test completed");
   } catch (error) {
-    console.error("MongoDB connection error:", error);
-    process.exit(1);
+    console.error("Test failed:", error);
   }
-};
+}
+
+testConnection();

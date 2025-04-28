@@ -85,7 +85,7 @@ const Hero: React.FC = () => {
           className="text-5xl font-bold font-heading text-center text-slate-300 z-1 w-full block"
           style={{ transform: "rotateX(60deg)" }}
         >
-          Living up to our name since 2019.
+          Living up to our name, week after week.
         </span>
       </div>
       <div className="max-w-4xl mx-auto mt-8">

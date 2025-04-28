@@ -1,7 +1,6 @@
-version: '3.8'
+version: "3.8"
 
 services:
-
   mongodb:
     image: mongo:latest
     container_name: guild-site-mongodb
@@ -37,8 +36,8 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - MONGODB_URI=mongodb://admin:password@mongodb:27017/guild-site
       - NODE_ENV=production
+      - MONGO_URI=mongodb://admin:password@mongodb:27017/guild-site?authSource=admin
     depends_on:
       - mongodb
     networks:
@@ -63,4 +62,4 @@ volumes:
 
 networks:
   guild-site-network:
-    driver: bridge 
+    driver: bridge

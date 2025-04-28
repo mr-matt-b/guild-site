@@ -5,47 +5,9 @@ import rateLimit from "express-rate-limit";
 import { createProxyMiddleware } from "./src/middleware/proxy";
 import guildRouter from "./src/routes/guild";
 import { connectDB } from "./src/config/mongodb";
-import { IncomingMessage } from "http";
-import { Request, Response } from "express";
 
 const app = express();
 const port = process.env.PORT || 3001;
-
-// Security middleware
-app.use(
-  helmet({
-    // contentSecurityPolicy: {
-    //   directives: {
-    //     defaultSrc: ["'self'"],
-    //     imgSrc: [
-    //       "'self'",
-    //       "https://wow.zamimg.com",
-    //       "https://render.worldofwarcraft.com",
-    //       "data:",
-    //       "blob:",
-    //     ],
-    //     scriptSrc: [
-    //       "'self'",
-    //       "https://wow.zamimg.com",
-    //       "'unsafe-inline'",
-    //       "'unsafe-eval'",
-    //     ],
-    //     styleSrc: ["'self'", "'unsafe-inline'"],
-    //     connectSrc: [
-    //       "'self'",
-    //       "https://wow.zamimg.com",
-    //       "https://render.worldofwarcraft.com",
-    //       "https://us.api.blizzard.com",
-    //     ],
-    //     mediaSrc: [
-    //       "'self'",
-    //       "https://wow.zamimg.com",
-    //       "https://render.worldofwarcraft.com",
-    //     ],
-    //   },
-    // },
-  })
-);
 
 // Rate limiter configuration for API endpoints
 const apiLimiter = rateLimit({
@@ -76,26 +38,21 @@ app.use(
   cors({
     origin:
       process.env.NODE_ENV === "production"
-        ? process.env.FRONTEND_URL || "https://guild-site.onrender.com"
+        ? process.env.FRONTEND_URL
         : "http://localhost:3000",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    exposedHeaders: ["Content-Range", "X-Content-Range"],
-    maxAge: 600, // Cache preflight requests for 10 minutes
   })
 );
 
 app.use(express.json());
 
-// Apply proxy rate limiting
-app.use((req, res, next) => {
-  if (req.path.startsWith("/api/zamimg") || req.path.startsWith("/api/wow")) {
-    proxyLimiter(req, res, next);
-  } else {
-    next();
-  }
-});
+// // Apply proxy rate limiting
+// app.use((req, res, next) => {
+//   if (req.path.startsWith("/api/zamimg") || req.path.startsWith("/api/wow")) {
+//     proxyLimiter(req, res, next);
+//   } else {
+//     next();
+//   }
+// });
 
 // Proxy middleware for Zamimg API
 app.use(
@@ -104,31 +61,8 @@ app.use(
     target: "https://wow.zamimg.com",
     changeOrigin: true,
     secure: true,
-    onProxyReq: (proxyReq, req, res) => {
-      // Set the host header to match the target
-      proxyReq.setHeader("host", "wow.zamimg.com");
-      // Add referer header to mimic browser behavior
-      proxyReq.setHeader("referer", "https://wow.zamimg.com/");
-      // Add accept header for JSON requests
-      proxyReq.setHeader("accept", "application/json, text/plain, */*");
-    },
-    onProxyRes: (proxyRes, req, res) => {
-      // Ensure CORS headers are preserved
-      res.setHeader(
-        "Access-Control-Allow-Origin",
-        process.env.FRONTEND_URL || "http://localhost:3000"
-      );
-      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-      res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Content-Type, Authorization, Accept"
-      );
-      res.setHeader("Access-Control-Allow-Credentials", "true");
-
-      // For model viewer requests, ensure content-type is set correctly
-      if (req.url?.includes("modelviewer")) {
-        res.setHeader("content-type", "application/json");
-      }
+    pathRewrite: {
+      "^/api/zamimg": "", // remove the /api/zamimg prefix
     },
   })
 );
@@ -147,14 +81,14 @@ app.use(
   })
 );
 
-// Apply API rate limiting to non-proxy routes
-app.use((req, res, next) => {
-  if (req.path.startsWith("/api/zamimg") || req.path.startsWith("/api/wow")) {
-    next();
-  } else {
-    apiLimiter(req, res, next);
-  }
-});
+// // Apply API rate limiting to non-proxy routes
+// app.use((req, res, next) => {
+//   if (req.path.startsWith("/api/zamimg") || req.path.startsWith("/api/wow")) {
+//     next();
+//   } else {
+//     apiLimiter(req, res, next);
+//   }
+// });
 
 // Mount guild routes
 app.use("/api/guild", guildRouter);
