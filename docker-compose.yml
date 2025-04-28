@@ -29,6 +29,35 @@ services:
     networks:
       - guild-site-network
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: guild-site-backend
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/guild-site
+      - NODE_ENV=production
+    depends_on:
+      - mongodb
+    networks:
+      - guild-site-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: guild-site-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:3001
+    depends_on:
+      - backend
+    networks:
+      - guild-site-network
+
 volumes:
   mongodb_data:
 
