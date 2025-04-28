@@ -36,65 +36,27 @@ connectDB().catch((error) => {
 // CORS configuration
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow all origins for Zamimg endpoints
-      if (origin && origin.includes("zamimg")) {
-        return callback(null, true);
-      }
-
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-
-      const allowedOrigins = [
-        process.env.FRONTEND_URL,
-        "http://localhost:3000",
-      ];
-
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
+    origin:
+      process.env.NODE_ENV === "production"
+        ? process.env.FRONTEND_URL
+        : "http://localhost:3000",
   })
 );
 
 app.use(express.json());
 
-// Remove the Zamimg proxy middleware and replace with custom route handler
-app.get("/api/zamimg/:path(*)", async (req, res) => {
-  try {
-    const path = req.params.path;
-    const url = `https://wow.zamimg.com/${path}`;
-
-    const response = await fetch(url);
-    const data = await response.text();
-
-    // Set CORS headers
-    res.setHeader(
-      "Access-Control-Allow-Origin",
-      process.env.FRONTEND_URL || "http://localhost:3000"
-    );
-    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept"
-    );
-
-    // Forward the content type from the original response
-    res.setHeader(
-      "Content-Type",
-      response.headers.get("Content-Type") || "application/json"
-    );
-
-    // Send the response
-    res.status(response.status).send(data);
-  } catch (error) {
-    console.error("Error proxying Zamimg request:", error);
-    res.status(500).json({ error: "Failed to proxy request" });
-  }
-});
+// Proxy middleware for Zamimg API
+app.use(
+  "/api/zamimg",
+  createProxyMiddleware({
+    target: "https://wow.zamimg.com",
+    changeOrigin: true,
+    secure: true,
+    pathRewrite: {
+      "^/api/zamimg": "", // remove the /api/zamimg prefix
+    },
+  })
+);
 
 // Proxy middleware for WoW API
 app.use(
