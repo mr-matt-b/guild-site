@@ -62,30 +62,39 @@ app.use(
 
 app.use(express.json());
 
-// Proxy middleware for Zamimg API
-app.use(
-  "/api/zamimg",
-  createProxyMiddleware({
-    target: "https://wow.zamimg.com",
-    changeOrigin: true,
-    secure: true,
-    pathRewrite: {
-      "^/api/zamimg": "", // remove the /api/zamimg prefix
-    },
-    onProxyRes: (proxyRes, req, res) => {
-      // Ensure CORS headers are set
-      res.setHeader(
-        "Access-Control-Allow-Origin",
-        process.env.FRONTEND_URL || "http://localhost:3000"
-      );
-      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-      res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept"
-      );
-    },
-  })
-);
+// Remove the Zamimg proxy middleware and replace with custom route handler
+app.get("/api/zamimg/*", async (req, res) => {
+  try {
+    const path = req.path.replace("/api/zamimg", "");
+    const url = `https://wow.zamimg.com${path}`;
+
+    const response = await fetch(url);
+    const data = await response.text();
+
+    // Set CORS headers
+    res.setHeader(
+      "Access-Control-Allow-Origin",
+      process.env.FRONTEND_URL || "http://localhost:3000"
+    );
+    res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept"
+    );
+
+    // Forward the content type from the original response
+    res.setHeader(
+      "Content-Type",
+      response.headers.get("Content-Type") || "application/json"
+    );
+
+    // Send the response
+    res.status(response.status).send(data);
+  } catch (error) {
+    console.error("Error proxying Zamimg request:", error);
+    res.status(500).json({ error: "Failed to proxy request" });
+  }
+});
 
 // Proxy middleware for WoW API
 app.use(
