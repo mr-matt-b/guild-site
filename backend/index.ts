@@ -36,23 +36,31 @@ connectDB().catch((error) => {
 // CORS configuration
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? process.env.FRONTEND_URL
-        : "http://localhost:3000",
+    origin: (origin, callback) => {
+      // Allow all origins for Zamimg endpoints
+      if (origin && origin.includes("zamimg")) {
+        return callback(null, true);
+      }
+
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      const allowedOrigins = [
+        process.env.FRONTEND_URL,
+        "http://localhost:3000",
+      ];
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
   })
 );
 
 app.use(express.json());
-
-// // Apply proxy rate limiting
-// app.use((req, res, next) => {
-//   if (req.path.startsWith("/api/zamimg") || req.path.startsWith("/api/wow")) {
-//     proxyLimiter(req, res, next);
-//   } else {
-//     next();
-//   }
-// });
 
 // Proxy middleware for Zamimg API
 app.use(
@@ -63,6 +71,18 @@ app.use(
     secure: true,
     pathRewrite: {
       "^/api/zamimg": "", // remove the /api/zamimg prefix
+    },
+    onProxyRes: (proxyRes, req, res) => {
+      // Ensure CORS headers are set
+      res.setHeader(
+        "Access-Control-Allow-Origin",
+        process.env.FRONTEND_URL || "http://localhost:3000"
+      );
+      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept"
+      );
     },
   })
 );
@@ -80,15 +100,6 @@ app.use(
     },
   })
 );
-
-// // Apply API rate limiting to non-proxy routes
-// app.use((req, res, next) => {
-//   if (req.path.startsWith("/api/zamimg") || req.path.startsWith("/api/wow")) {
-//     next();
-//   } else {
-//     apiLimiter(req, res, next);
-//   }
-// });
 
 // Mount guild routes
 app.use("/api/guild", guildRouter);
