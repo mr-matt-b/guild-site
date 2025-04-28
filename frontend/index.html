@@ -10,7 +10,10 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <!-- Set the content path to use our backend proxy -->
   <script>
-    window.CONTENT_PATH = "api/zamimg/modelviewer/live/";
+    // Set the content path to use our backend proxy
+    document.addEventListener('DOMContentLoaded', () => {
+      window.CONTENT_PATH = `${window.ENV?.VITE_API_BASE_URL || '/api'}/zamimg/modelviewer/live/`;
+    });
   </script>
   <!-- Then load the viewer from our public folder -->
   <script src="/modelviewer/viewer.min.js"></script>
