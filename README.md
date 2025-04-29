@@ -1,7 +1,5 @@
 # Guild Site
 
-A web application for managing guild information and character data.
-
 ## Docker Installation (Linux)
 
 If you're new to Docker, you can install it with a single command:
